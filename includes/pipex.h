@@ -6,7 +6,7 @@
 /*   By: tafujise <tafujise@student.42.jp>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/28 14:33:06 by tafujise          #+#    #+#             */
-/*   Updated: 2025/11/30 00:36:15 by tafujise         ###   ########.fr       */
+/*   Updated: 2025/11/30 02:19:11 by tafujise         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,11 +49,8 @@ typedef struct s_ctx
 int		parse_args(int argc, char **argv, char **envp, t_ctx *ctx);
 int		parse_path(t_ctx *ctx);
 int		open_files(t_files *files);
-/* pipe.c */
+/* pipeline.c */
 int		run_pipeline(t_ctx *ctx);
-void	exec_child(t_ctx *ctx, char **cmd, int input_fd, int output_fd);
-int		apply_redirect(int input_fd, int output_fd);
-void	search_and_exec(t_ctx *ctx, char **cmd);
 /* free.c */
 void	free_ctx(t_ctx *ctx);
 void	free_cmds(char ****cmds);
@@ -63,5 +60,7 @@ void	close_files(int fd1, int fd2);
 /* utils.c */
 bool	has_slash(char *cmd);
 void	exit_code_handle(void);
+int		status_to_exitcode(int status);
+int		apply_redirect(int input_fd, int output_fd);
 
 #endif
