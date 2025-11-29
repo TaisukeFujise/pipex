@@ -6,36 +6,50 @@
 /*   By: tafujise <tafujise@student.42.jp>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/28 15:44:10 by tafujise          #+#    #+#             */
-/*   Updated: 2025/11/30 00:58:51 by tafujise         ###   ########.fr       */
+/*   Updated: 2025/11/30 01:50:50 by tafujise         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/pipex.h"
 
-int	run_pipeline(t_ctx *ctx)
+pid_t	spawn_first(t_ctx *ctx)
 {
-	ctx->pids = malloc(sizeof(pid_t) * 2);
-	if (ctx->pids == NULL)
-		return (perror("malloc"), 1);
 	ctx->pids[0] = fork();
-	if (ctx->pids[0] < 0)
-		return (perror("fork"), 1);
-	else if (ctx->pids[0] == 0)
+	if (ctx->pids[0] == 0)
 	{
 		close_files(ctx->pipefd[0], ctx->files.output_fd);
 		exec_child(ctx, ctx->cmds[0], ctx->files.input_fd, ctx->pipefd[1]);
 	}
+	return (ctx->pids[0]);
+}
+
+pid_t	spawn_second(t_ctx *ctx)
+{
 	ctx->pids[1] = fork();
+	if (ctx->pids[1] == 0)
+	{
+		close_files(ctx->pipefd[1], ctx->files.input_fd);
+		exec_child(ctx, ctx->cmds[1], ctx->pipefd[0], ctx->files.output_fd);
+	}
+	return (ctx->pids[1]);
+}
+
+int	run_pipeline(t_ctx *ctx)
+{
+	int	i;
+
+	ctx->pids = malloc(sizeof(pid_t) * 2);
+	if (ctx->pids == NULL)
+		return (perror("malloc"), 1);
+	ctx->pids[0] = spawn_first(ctx);
+	if (ctx->pids[0] < 0)
+		return (perror("fork"), 1);
+	ctx->pids[1] = spawn_second(ctx);
 	if (ctx->pids[1] < 0)
 	{
 		if (waitpid(ctx->pids[0], NULL, 0) < 0)
 			return (perror("waitpid"), 1);
 		return (perror("fork"), 1);
-	}
-	else if (ctx->pids[1] == 0)
-	{
-		close_files(ctx->pipefd[1], ctx->files.input_fd);
-		exec_child(ctx, ctx->cmds[1], ctx->pipefd[0], ctx->files.output_fd);
 	}
 	close_files(ctx->pipefd[0], ctx->pipefd[1]);
 	if (waitpid(ctx->pids[0], NULL, 0) < 0)
