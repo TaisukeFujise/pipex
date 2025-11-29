@@ -6,11 +6,20 @@
 /*   By: tafujise <tafujise@student.42.jp>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/28 15:44:10 by tafujise          #+#    #+#             */
-/*   Updated: 2025/11/30 01:50:50 by tafujise         ###   ########.fr       */
+/*   Updated: 2025/11/30 02:12:32 by tafujise         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/pipex.h"
+
+int	status_to_exitcode(int status)
+{
+	if (WIFEXITED(status))
+		return (WEXITSTATUS(status));
+	if (WIFSIGNALED(status))
+		return (128 + WTERMSIG(status));
+	return (1);
+}
 
 pid_t	spawn_first(t_ctx *ctx)
 {
@@ -36,8 +45,6 @@ pid_t	spawn_second(t_ctx *ctx)
 
 int	run_pipeline(t_ctx *ctx)
 {
-	int	i;
-
 	ctx->pids = malloc(sizeof(pid_t) * 2);
 	if (ctx->pids == NULL)
 		return (perror("malloc"), 1);
@@ -56,7 +63,7 @@ int	run_pipeline(t_ctx *ctx)
 		return (perror("waitpid"), 1);
 	if (waitpid(ctx->pids[1], &ctx->status, 0) < 0)
 		return (perror("waitpid"), 1);
-	return (WEXITSTATUS(ctx->status));
+	return (status_to_exitcode(ctx->status));
 }
 
 void	exec_child(t_ctx *ctx,
