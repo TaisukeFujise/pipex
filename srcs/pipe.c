@@ -6,7 +6,7 @@
 /*   By: tafujise <tafujise@student.42.jp>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/28 15:44:10 by tafujise          #+#    #+#             */
-/*   Updated: 2025/11/29 15:50:51 by tafujise         ###   ########.fr       */
+/*   Updated: 2025/11/29 16:55:23 by tafujise         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,7 @@ void	execute_children_process(t_ctx *ctx, char **cmd, int input_fd, int output_f
 	if (apply_redirect(input_fd, output_fd) == ERROR)
 	{
 		close_files(input_fd, output_fd);
+		free_ctx(ctx);
 		exit(1);
 	}
 	close_files(input_fd, output_fd);
@@ -60,7 +61,7 @@ void	execute_children_process(t_ctx *ctx, char **cmd, int input_fd, int output_f
 int	apply_redirect(int input_fd, int output_fd)
 {
 	if (input_fd == -1 || output_fd == -1)
-		return (ERROR);
+		return (SUCCESS);
 	if (input_fd != STDIN_FILENO)
 	{
 		if (dup2(input_fd, STDIN_FILENO) != STDIN_FILENO)
@@ -97,9 +98,11 @@ void	search_and_exec(t_ctx *ctx, char **cmd)
 		if (path == NULL)
 			exit(1);
 		execve(path, cmd, ctx->envp);
+		free(path);
 		i++;
 	}
 	perror(cmd[0]);
+	free_ctx(ctx);
 	if (errno == EACCES)
 		exit(126);
 	if (errno == ENOENT)
