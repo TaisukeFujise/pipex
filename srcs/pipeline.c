@@ -6,7 +6,7 @@
 /*   By: tafujise <tafujise@student.42.jp>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/28 15:44:10 by tafujise          #+#    #+#             */
-/*   Updated: 2025/11/30 00:44:11 by tafujise         ###   ########.fr       */
+/*   Updated: 2025/11/30 00:58:51 by tafujise         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,17 +25,21 @@ int	run_pipeline(t_ctx *ctx)
 		close_files(ctx->pipefd[0], ctx->files.output_fd);
 		exec_child(ctx, ctx->cmds[0], ctx->files.input_fd, ctx->pipefd[1]);
 	}
-	if (waitpid(ctx->pids[0], NULL, 0) < 0)
-		return (perror("waitpid"), 1);
 	ctx->pids[1] = fork();
 	if (ctx->pids[1] < 0)
+	{
+		if (waitpid(ctx->pids[0], NULL, 0) < 0)
+			return (perror("waitpid"), 1);
 		return (perror("fork"), 1);
+	}
 	else if (ctx->pids[1] == 0)
 	{
 		close_files(ctx->pipefd[1], ctx->files.input_fd);
 		exec_child(ctx, ctx->cmds[1], ctx->pipefd[0], ctx->files.output_fd);
 	}
 	close_files(ctx->pipefd[0], ctx->pipefd[1]);
+	if (waitpid(ctx->pids[0], NULL, 0) < 0)
+		return (perror("waitpid"), 1);
 	if (waitpid(ctx->pids[1], &ctx->status, 0) < 0)
 		return (perror("waitpid"), 1);
 	return (WEXITSTATUS(ctx->status));
