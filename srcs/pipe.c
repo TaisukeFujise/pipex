@@ -6,7 +6,7 @@
 /*   By: tafujise <tafujise@student.42.jp>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/28 15:44:10 by tafujise          #+#    #+#             */
-/*   Updated: 2025/11/29 18:07:39 by tafujise         ###   ########.fr       */
+/*   Updated: 2025/11/29 23:41:23 by tafujise         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,9 +56,9 @@ void	exec_child(t_ctx *ctx,
 
 int	apply_redirect(int input_fd, int output_fd)
 {
-	if (input_fd == -1 || output_fd == -1)
-		return (SUCCESS);
-	if (input_fd != STDIN_FILENO)
+	if (output_fd == -1)
+		return (ERROR);
+	if (input_fd != -1 && input_fd != STDIN_FILENO)
 	{
 		if (dup2(input_fd, STDIN_FILENO) != STDIN_FILENO)
 		{
@@ -66,7 +66,7 @@ int	apply_redirect(int input_fd, int output_fd)
 			return (ERROR);
 		}
 	}
-	if (output_fd != STDOUT_FILENO)
+	if (output_fd != -1 && output_fd != STDOUT_FILENO)
 	{
 		if (dup2(output_fd, STDOUT_FILENO) != STDOUT_FILENO)
 		{
