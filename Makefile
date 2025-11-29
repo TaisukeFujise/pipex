@@ -6,7 +6,7 @@
 #    By: tafujise <tafujise@student.42.jp>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/10/30 12:42:52 by tafujise          #+#    #+#              #
-#    Updated: 2025/11/29 12:04:43 by tafujise         ###   ########.fr        #
+#    Updated: 2025/11/29 23:50:14 by tafujise         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -15,7 +15,7 @@ NAME:=pipex
 SRCDIR:=srcs
 SRCS:=main.c\
 	parse.c\
-	pipe.c\
+	pipeline.c\
 	free.c\
 
 HEADDIR:=includes

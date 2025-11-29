@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   pipe.c                                             :+:      :+:    :+:   */
+/*   pipeline.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: tafujise <tafujise@student.42.jp>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/28 15:44:10 by tafujise          #+#    #+#             */
-/*   Updated: 2025/11/29 23:41:23 by tafujise         ###   ########.fr       */
+/*   Updated: 2025/11/30 00:16:14 by tafujise         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,11 @@ void	exec_child(t_ctx *ctx,
 		exit(1);
 	}
 	close_files(input_fd, output_fd);
+	if (cmd[0] == NULL)
+	{
+		ft_putstr_fd("command not found\n", 2);
+		exit(127);
+	}
 	search_and_exec(ctx, cmd);
 }
 
