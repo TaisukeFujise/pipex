@@ -6,7 +6,7 @@
 /*   By: tafujise <tafujise@student.42.jp>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/28 14:33:06 by tafujise          #+#    #+#             */
-/*   Updated: 2025/11/29 18:07:39 by tafujise         ###   ########.fr       */
+/*   Updated: 2025/11/30 00:36:15 by tafujise         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@
 # include <sys/wait.h>
 # include <errno.h>
 # include <stdio.h>
+# include <stdbool.h>
 
 # define SUCCESS 0
 # define ERROR -1
@@ -59,5 +60,8 @@ void	free_cmds(char ****cmds);
 void	free_pids(pid_t **pids);
 void	free_path(char ***path);
 void	close_files(int fd1, int fd2);
+/* utils.c */
+bool	has_slash(char *cmd);
+void	exit_code_handle(void);
 
 #endif

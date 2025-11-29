@@ -6,7 +6,7 @@
 /*   By: tafujise <tafujise@student.42.jp>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/28 15:44:10 by tafujise          #+#    #+#             */
-/*   Updated: 2025/11/30 00:16:14 by tafujise         ###   ########.fr       */
+/*   Updated: 2025/11/30 00:44:11 by tafujise         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,6 +54,7 @@ void	exec_child(t_ctx *ctx,
 	if (cmd[0] == NULL)
 	{
 		ft_putstr_fd("command not found\n", 2);
+		free_ctx(ctx);
 		exit(127);
 	}
 	search_and_exec(ctx, cmd);
@@ -89,6 +90,8 @@ void	search_and_exec(t_ctx *ctx, char **cmd)
 	char	*path;
 
 	i = 0;
+	if (has_slash(cmd[0]) == true)
+		execve(cmd[0], cmd, ctx->envp);
 	while (ctx->path[i] != NULL)
 	{
 		path_base = ft_strjoin(ctx->path[i], "/");
@@ -104,9 +107,5 @@ void	search_and_exec(t_ctx *ctx, char **cmd)
 	}
 	perror(cmd[0]);
 	free_ctx(ctx);
-	if (errno == EACCES || errno == ENOEXEC)
-		exit(126);
-	if (errno == ENOENT)
-		exit(127);
-	exit(1);
+	exit_code_handle();
 }
