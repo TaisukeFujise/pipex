@@ -6,7 +6,7 @@
 /*   By: tafujise <tafujise@student.42.jp>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/28 15:44:10 by tafujise          #+#    #+#             */
-/*   Updated: 2025/11/29 12:11:29 by tafujise         ###   ########.fr       */
+/*   Updated: 2025/11/29 15:50:51 by tafujise         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,8 @@ int	run_pipeline(t_ctx *ctx)
 		close_files(pipefd[0], ctx->files.output_fd);
 		execute_children_process(ctx, ctx->cmds[0], ctx->files.input_fd, pipefd[1]);
 	}
-	waitpid(ctx->pids[0], NULL, 0);
+	if (waitpid(ctx->pids[0], NULL, 0) < 0)
+		return (perror("waitpid"), close_files(pipefd[0], pipefd[1]), 1);
 	ctx->pids[1] = fork();
 	if (ctx->pids[1] < 0)
 		return (perror("fork"), close_files(pipefd[0], pipefd[1]), 1);
@@ -40,7 +41,8 @@ int	run_pipeline(t_ctx *ctx)
 		execute_children_process(ctx, ctx->cmds[1], pipefd[0], ctx->files.output_fd);
 	}
 	close_files(pipefd[0], pipefd[1]);
-	waitpid(ctx->pids[1], &status, 0); 
+	if (waitpid(ctx->pids[1], &status, 0) < 0)
+		return (perror("waitpid"), close_files(pipefd[0], pipefd[1]), 1); 
 	return (WEXITSTATUS(status));
 }
 
@@ -57,6 +59,8 @@ void	execute_children_process(t_ctx *ctx, char **cmd, int input_fd, int output_f
 
 int	apply_redirect(int input_fd, int output_fd)
 {
+	if (input_fd == -1 || output_fd == -1)
+		return (ERROR);
 	if (input_fd != STDIN_FILENO)
 	{
 		if (dup2(input_fd, STDIN_FILENO) != STDIN_FILENO)

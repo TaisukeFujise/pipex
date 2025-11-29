@@ -6,7 +6,7 @@
 /*   By: tafujise <tafujise@student.42.jp>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/28 14:50:42 by tafujise          #+#    #+#             */
-/*   Updated: 2025/11/29 11:51:11 by tafujise         ###   ########.fr       */
+/*   Updated: 2025/11/29 15:54:00 by tafujise         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ int	parse_path(t_ctx *ctx)
 		if (ft_strncmp(ctx->envp[i], "PATH=", 5) == 0)
 		{
 			path = ctx->envp[i] + 5;
-			break;
+			break ;
 		}
 		i++;
 	}
@@ -61,8 +61,8 @@ int	open_files(t_files *files)
 {
 	files->input_fd = open(files->input_file, O_RDONLY);
 	if (files->input_fd == -1)
-		return (perror(files->input_file), ERROR);
-	files->output_fd = open(files->output_file, O_WRONLY | O_CREAT, 0644);
+		perror(files->input_file);
+	files->output_fd = open(files->output_file, O_WRONLY | O_TRUNC | O_CREAT, 0644);
 	if (files->output_fd == -1)
 		return (perror(files->output_file), ERROR);
 	return (SUCCESS);
