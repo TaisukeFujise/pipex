@@ -6,7 +6,7 @@
 /*   By: tafujise <tafujise@student.42.jp>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/28 14:50:42 by tafujise          #+#    #+#             */
-/*   Updated: 2025/11/29 15:54:00 by tafujise         ###   ########.fr       */
+/*   Updated: 2025/11/29 18:06:19 by tafujise         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,8 @@ int	open_files(t_files *files)
 	files->input_fd = open(files->input_file, O_RDONLY);
 	if (files->input_fd == -1)
 		perror(files->input_file);
-	files->output_fd = open(files->output_file, O_WRONLY | O_TRUNC | O_CREAT, 0644);
+	files->output_fd = open(files->output_file,
+			O_WRONLY | O_TRUNC | O_CREAT, 0644);
 	if (files->output_fd == -1)
 		return (perror(files->output_file), ERROR);
 	return (SUCCESS);

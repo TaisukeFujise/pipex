@@ -6,7 +6,7 @@
 /*   By: tafujise <tafujise@student.42.jp>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/28 15:44:10 by tafujise          #+#    #+#             */
-/*   Updated: 2025/11/29 16:55:23 by tafujise         ###   ########.fr       */
+/*   Updated: 2025/11/29 18:07:39 by tafujise         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,39 +14,35 @@
 
 int	run_pipeline(t_ctx *ctx)
 {
-	int	pipefd[2];
-	int	status;
-
-	if (pipe(pipefd) < 0)
-		return (perror("pipe"), 1);
 	ctx->pids = malloc(sizeof(pid_t) * 2);
 	if (ctx->pids == NULL)
-		return (perror("malloc"), close_files(pipefd[0], pipefd[1]), 1);
+		return (perror("malloc"), 1);
 	ctx->pids[0] = fork();
 	if (ctx->pids[0] < 0)
-		return (perror("fork"), close_files(pipefd[0], pipefd[1]), 1);
+		return (perror("fork"), 1);
 	else if (ctx->pids[0] == 0)
 	{
-		close_files(pipefd[0], ctx->files.output_fd);
-		execute_children_process(ctx, ctx->cmds[0], ctx->files.input_fd, pipefd[1]);
+		close_files(ctx->pipefd[0], ctx->files.output_fd);
+		exec_child(ctx, ctx->cmds[0], ctx->files.input_fd, ctx->pipefd[1]);
 	}
 	if (waitpid(ctx->pids[0], NULL, 0) < 0)
-		return (perror("waitpid"), close_files(pipefd[0], pipefd[1]), 1);
+		return (perror("waitpid"), 1);
 	ctx->pids[1] = fork();
 	if (ctx->pids[1] < 0)
-		return (perror("fork"), close_files(pipefd[0], pipefd[1]), 1);
+		return (perror("fork"), 1);
 	else if (ctx->pids[1] == 0)
 	{
-		close_files(pipefd[1], ctx->files.input_fd);
-		execute_children_process(ctx, ctx->cmds[1], pipefd[0], ctx->files.output_fd);
+		close_files(ctx->pipefd[1], ctx->files.input_fd);
+		exec_child(ctx, ctx->cmds[1], ctx->pipefd[0], ctx->files.output_fd);
 	}
-	close_files(pipefd[0], pipefd[1]);
-	if (waitpid(ctx->pids[1], &status, 0) < 0)
-		return (perror("waitpid"), close_files(pipefd[0], pipefd[1]), 1); 
-	return (WEXITSTATUS(status));
+	close_files(ctx->pipefd[0], ctx->pipefd[1]);
+	if (waitpid(ctx->pids[1], &ctx->status, 0) < 0)
+		return (perror("waitpid"), 1);
+	return (WEXITSTATUS(ctx->status));
 }
 
-void	execute_children_process(t_ctx *ctx, char **cmd, int input_fd, int output_fd)
+void	exec_child(t_ctx *ctx,
+								char **cmd, int input_fd, int output_fd)
 {
 	if (apply_redirect(input_fd, output_fd) == ERROR)
 	{
@@ -103,7 +99,7 @@ void	search_and_exec(t_ctx *ctx, char **cmd)
 	}
 	perror(cmd[0]);
 	free_ctx(ctx);
-	if (errno == EACCES)
+	if (errno == EACCES || errno == ENOEXEC)
 		exit(126);
 	if (errno == ENOENT)
 		exit(127);

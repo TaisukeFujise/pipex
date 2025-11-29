@@ -6,7 +6,7 @@
 /*   By: tafujise <tafujise@student.42.jp>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/28 14:33:06 by tafujise          #+#    #+#             */
-/*   Updated: 2025/11/29 12:04:38 by tafujise         ###   ########.fr       */
+/*   Updated: 2025/11/29 18:07:39 by tafujise         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,8 @@ typedef struct s_ctx
 	pid_t	*pids;
 	char	**envp;
 	char	**path;
+	int		pipefd[2];
+	int		status;
 }	t_ctx;
 
 /* parse.c */
@@ -48,7 +50,7 @@ int		parse_path(t_ctx *ctx);
 int		open_files(t_files *files);
 /* pipe.c */
 int		run_pipeline(t_ctx *ctx);
-void	execute_children_process(t_ctx *ctx, char **cmd, int input_fd, int output_fd);
+void	exec_child(t_ctx *ctx, char **cmd, int input_fd, int output_fd);
 int		apply_redirect(int input_fd, int output_fd);
 void	search_and_exec(t_ctx *ctx, char **cmd);
 /* free.c */
