@@ -6,42 +6,17 @@
 /*   By: tafujise <tafujise@student.42.jp>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/28 15:44:10 by tafujise          #+#    #+#             */
-/*   Updated: 2025/11/30 02:12:32 by tafujise         ###   ########.fr       */
+/*   Updated: 2025/11/30 02:20:04 by tafujise         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/pipex.h"
 
-int	status_to_exitcode(int status)
-{
-	if (WIFEXITED(status))
-		return (WEXITSTATUS(status));
-	if (WIFSIGNALED(status))
-		return (128 + WTERMSIG(status));
-	return (1);
-}
-
-pid_t	spawn_first(t_ctx *ctx)
-{
-	ctx->pids[0] = fork();
-	if (ctx->pids[0] == 0)
-	{
-		close_files(ctx->pipefd[0], ctx->files.output_fd);
-		exec_child(ctx, ctx->cmds[0], ctx->files.input_fd, ctx->pipefd[1]);
-	}
-	return (ctx->pids[0]);
-}
-
-pid_t	spawn_second(t_ctx *ctx)
-{
-	ctx->pids[1] = fork();
-	if (ctx->pids[1] == 0)
-	{
-		close_files(ctx->pipefd[1], ctx->files.input_fd);
-		exec_child(ctx, ctx->cmds[1], ctx->pipefd[0], ctx->files.output_fd);
-	}
-	return (ctx->pids[1]);
-}
+static pid_t	spawn_first(t_ctx *ctx);
+static pid_t	spawn_second(t_ctx *ctx);
+static void		exec_child(t_ctx *ctx,
+					char **cmd, int input_fd, int output_fd);
+static void		search_and_exec(t_ctx *ctx, char **cmd);
 
 int	run_pipeline(t_ctx *ctx)
 {
@@ -66,7 +41,29 @@ int	run_pipeline(t_ctx *ctx)
 	return (status_to_exitcode(ctx->status));
 }
 
-void	exec_child(t_ctx *ctx,
+static pid_t	spawn_first(t_ctx *ctx)
+{
+	ctx->pids[0] = fork();
+	if (ctx->pids[0] == 0)
+	{
+		close_files(ctx->pipefd[0], ctx->files.output_fd);
+		exec_child(ctx, ctx->cmds[0], ctx->files.input_fd, ctx->pipefd[1]);
+	}
+	return (ctx->pids[0]);
+}
+
+static pid_t	spawn_second(t_ctx *ctx)
+{
+	ctx->pids[1] = fork();
+	if (ctx->pids[1] == 0)
+	{
+		close_files(ctx->pipefd[1], ctx->files.input_fd);
+		exec_child(ctx, ctx->cmds[1], ctx->pipefd[0], ctx->files.output_fd);
+	}
+	return (ctx->pids[1]);
+}
+
+static void	exec_child(t_ctx *ctx,
 								char **cmd, int input_fd, int output_fd)
 {
 	if (apply_redirect(input_fd, output_fd) == ERROR)
@@ -85,30 +82,7 @@ void	exec_child(t_ctx *ctx,
 	search_and_exec(ctx, cmd);
 }
 
-int	apply_redirect(int input_fd, int output_fd)
-{
-	if (output_fd == -1)
-		return (ERROR);
-	if (input_fd != -1 && input_fd != STDIN_FILENO)
-	{
-		if (dup2(input_fd, STDIN_FILENO) != STDIN_FILENO)
-		{
-			perror("dup2(stdin)");
-			return (ERROR);
-		}
-	}
-	if (output_fd != -1 && output_fd != STDOUT_FILENO)
-	{
-		if (dup2(output_fd, STDOUT_FILENO) != STDOUT_FILENO)
-		{
-			perror("dup2(stdout)");
-			return (ERROR);
-		}
-	}
-	return (SUCCESS);
-}
-
-void	search_and_exec(t_ctx *ctx, char **cmd)
+static void	search_and_exec(t_ctx *ctx, char **cmd)
 {
 	int		i;
 	char	*path_base;
