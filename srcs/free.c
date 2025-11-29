@@ -6,7 +6,7 @@
 /*   By: tafujise <tafujise@student.42.jp>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/28 20:40:00 by tafujise          #+#    #+#             */
-/*   Updated: 2025/11/28 23:39:00 by tafujise         ###   ########.fr       */
+/*   Updated: 2025/11/29 11:59:27 by tafujise         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,11 +65,13 @@ void	free_path(char ***path)
 		free((*path)[i]);
 		i++;
 	}
-	free((*path));
+	free(*path);
 }
 
 void	close_files(int fd1, int fd2)
 {
-	close(fd1);
-	close(fd2);
+	if (fd1 != -1)
+		close(fd1);
+	if (fd2 != -1)
+		close(fd2);
 }
