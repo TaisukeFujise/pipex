@@ -6,7 +6,7 @@
 /*   By: tafujise <tafujise@student.42.jp>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/28 20:40:00 by tafujise          #+#    #+#             */
-/*   Updated: 2025/11/29 11:59:27 by tafujise         ###   ########.fr       */
+/*   Updated: 2025/11/29 12:17:12 by tafujise         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,7 @@ void	free_cmds(char ****cmds)
 		free((*cmds)[i]);
 		i++;
 	}
+	free(*cmds);
 }
 
 void	free_pids(pid_t **pids)
