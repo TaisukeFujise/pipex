@@ -6,7 +6,7 @@
 /*   By: tafujise <tafujise@student.42.jp>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/28 14:50:42 by tafujise          #+#    #+#             */
-/*   Updated: 2025/11/30 00:14:35 by tafujise         ###   ########.fr       */
+/*   Updated: 2025/11/30 16:17:02 by tafujise         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,8 @@
 int	parse_args(int argc, char **argv, char **envp, t_ctx *ctx)
 {
 	if (argc != 5)
-		return (ft_putstr_fd("Error: Wrong arguments\n", 2), ERROR);
+		return (ft_putstr_fd("Usage: ./pipex infile cmd1 cmd2 outfile\n", 2),
+			ERROR);
 	ctx->files.input_file = argv[1];
 	ctx->files.output_file = argv[4];
 	ctx->cmds = malloc(sizeof(char **) * 3);
@@ -50,7 +51,7 @@ int	parse_path(t_ctx *ctx)
 		i++;
 	}
 	if (ctx->envp[i] == NULL)
-		return (ft_putstr_fd("Error: path not found", 2), ERROR);
+		return (ft_putstr_fd("Error: envp is NULL\n", 2), ERROR);
 	ctx->path = ft_split(path, ':');
 	if (ctx->path == NULL)
 		return (perror("split"), ERROR);

@@ -6,7 +6,7 @@
 /*   By: tafujise <tafujise@student.42.jp>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/30 00:35:09 by tafujise          #+#    #+#             */
-/*   Updated: 2025/11/30 02:16:33 by tafujise         ###   ########.fr       */
+/*   Updated: 2025/11/30 17:03:54 by tafujise         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,4 +65,15 @@ int	apply_redirect(int input_fd, int output_fd)
 		}
 	}
 	return (SUCCESS);
+}
+
+void	exec_direct_path(t_ctx *ctx, char *path, char **cmd, char **envp)
+{
+	if (execve(path, cmd, envp) < 0)
+	{
+		ft_putstr_fd(path, 2);
+		ft_putstr_fd(": command not found\n", 2);
+		free_ctx(ctx);
+		exit_code_handle();
+	}
 }

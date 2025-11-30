@@ -6,7 +6,7 @@
 /*   By: tafujise <tafujise@student.42.jp>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/28 14:33:06 by tafujise          #+#    #+#             */
-/*   Updated: 2025/11/30 02:19:11 by tafujise         ###   ########.fr       */
+/*   Updated: 2025/11/30 16:53:37 by tafujise         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,5 +62,6 @@ bool	has_slash(char *cmd);
 void	exit_code_handle(void);
 int		status_to_exitcode(int status);
 int		apply_redirect(int input_fd, int output_fd);
+void	exec_direct_path(t_ctx *ctx, char *path, char **cmd, char **envp);
 
 #endif
