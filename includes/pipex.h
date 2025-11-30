@@ -6,7 +6,7 @@
 /*   By: tafujise <tafujise@student.42.jp>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/28 14:33:06 by tafujise          #+#    #+#             */
-/*   Updated: 2025/11/30 16:53:37 by tafujise         ###   ########.fr       */
+/*   Updated: 2025/11/30 17:12:31 by tafujise         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,9 +15,7 @@
 
 # include "../libft/libft.h"
 # include <sys/types.h>
-# include <linux/limits.h>
 # include <fcntl.h>
-# include <sys/stat.h>
 # include <sys/wait.h>
 # include <errno.h>
 # include <stdio.h>
