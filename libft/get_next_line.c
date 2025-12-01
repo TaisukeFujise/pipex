@@ -5,120 +5,105 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: tafujise <tafujise@student.42.jp>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/10/20 17:36:49 by tafujise          #+#    #+#             */
-/*   Updated: 2025/11/18 22:05:07 by tafujise         ###   ########.fr       */
+/*   Created: 2025/12/01 18:32:04 by tafujise          #+#    #+#             */
+/*   Updated: 2025/12/01 20:56:32 by tafujise         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-static int	reflect_lines(int bytes, char **buffer, char **lines, int fd)
-{
-	char	*new_lines;
-
-	while (bytes > 0)
-	{
-		(*buffer)[bytes] = '\0';
-		new_lines = ft_strjoin(*lines, *buffer);
-		free(*lines);
-		*lines = new_lines;
-		if (!(*lines))
-		{
-			free(*buffer);
-			return (0);
-		}
-		if (ft_strchr(*buffer, '\n'))
-			break ;
-		bytes = read(fd, *buffer, BUFFER_SIZE);
-	}
-	free(*buffer);
-	if (bytes < 0)
-	{
-		free(*lines);
-		return (0);
-	}
-	return (1);
-}
-
-static char	*read_until_nl(int fd, char *lines)
-{
-	char	*buffer;
-	int		bytes;
-
-	buffer = (char *)ft_calloc(BUFFER_SIZE + 1, sizeof(char));
-	if (!buffer)
-	{
-		free(lines);
-		return (NULL);
-	}
-	bytes = read(fd, buffer, BUFFER_SIZE);
-	if (!reflect_lines(bytes, &buffer, &lines, fd))
-		return (NULL);
-	return (lines);
-}
-
-static char	*extract_current_line(char *lines)
-{
-	char	*current_line;
-	int		i;
-
-	i = 0;
-	while (lines[i] && lines[i] != '\n')
-		i++;
-	if (lines[i] == '\n')
-		i++;
-	current_line = ft_strndup(lines, i);
-	if (!current_line)
-	{
-		return (NULL);
-	}
-	return (current_line);
-}
-
-static char	*update_lines(char *lines)
-{
-	char	*next_lines;
-	char	*tmp;
-
-	next_lines = ft_strchr(lines, '\n');
-	if (!next_lines)
-	{
-		free(lines);
-		return (NULL);
-	}
-	if (*(next_lines + 1) == '\0')
-	{
-		free(lines);
-		return (NULL);
-	}
-	tmp = ft_strndup(next_lines + 1, ft_strlen(next_lines + 1));
-	free(lines);
-	if (tmp == NULL)
-		return (NULL);
-	return (tmp);
-}
+static char	*read_to_stash(int fd, char *stash);
+static char	*extract_line(char *stash);
+static char	*update_stash(char *stash);
 
 char	*get_next_line(int fd)
 {
-	static char	*lines;
-	char		*current_line;
+	char		*line;
+	static char	*stash;
 
 	if (fd < 0 || BUFFER_SIZE <= 0)
+		return (NULL);
+	stash = read_to_stash(fd, stash);
+	if (stash == NULL)
+		return (NULL);
+	line = extract_line(stash);
+	if (line == NULL)
 	{
-		free(lines);
-		lines = NULL;
+		free(stash);
+		stash = NULL;
 		return (NULL);
 	}
-	lines = read_until_nl(fd, lines);
-	if (!lines)
-		return (NULL);
-	current_line = extract_current_line(lines);
-	if (!current_line)
+	stash = update_stash(stash);
+	return (line);
+}
+
+static char	*read_to_stash(int fd, char *stash)
+{
+	char	*buffer;
+	int		bytes;
+	char	*new_stash;
+
+	buffer = ft_calloc(BUFFER_SIZE + 1, sizeof(char));
+	if (buffer == NULL)
+		return (free(stash), NULL);
+	bytes = 1;
+	while (bytes != 0 && ft_strchr(buffer, '\n') == NULL)
 	{
-		free(lines);
-		lines = NULL;
-		return (NULL);
+		bytes = read(fd, buffer, BUFFER_SIZE);
+		if (bytes == -1)
+			return (free(stash), free(buffer), NULL);
+		buffer[bytes] = '\0';
+		new_stash = ft_strjoin(stash, buffer);
+		free(stash);
+		stash = new_stash;
 	}
-	lines = update_lines(lines);
-	return (current_line);
+	return (free(buffer), stash);
+}
+
+static char	*extract_line(char *stash)
+{
+	int		i;
+	char	*line;
+
+	i = 0;
+	if (stash == NULL || stash[i] == '\0')
+		return (NULL);
+	while (stash[i] != '\0' && stash[i] != '\n')
+		i++;
+	line = ft_calloc(i + 2, sizeof(char));
+	if (line == NULL)
+		return (NULL);
+	ft_memcpy(line, stash, i);
+	if (stash[i] == '\n')
+	{
+		line[i] = stash[i];
+		i++;
+	}
+	line[i] = '\0';
+	return (line);
+}
+
+static char	*update_stash(char *stash)
+{
+	int		i;
+	int		j;
+	char	*new_stash;
+
+	if (stash == NULL)
+		return (NULL);
+	i = 0;
+	while (stash[i] != '\0' && stash[i] != '\n')
+		i++;
+	if (stash[i] == '\0')
+		return (free(stash), NULL);
+	new_stash = ft_calloc(ft_strlen(stash) - i + 1, sizeof(char));
+	if (new_stash == NULL)
+		return (free(stash), NULL);
+	i++;
+	j = 0;
+	while (stash[i] != '\0')
+		new_stash[j++] = stash[i++];
+	new_stash[j] = '\0';
+	free(stash);
+	return (new_stash);
 }
