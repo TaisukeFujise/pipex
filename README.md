@@ -12,4 +12,5 @@
 ```
 ./pipex infile "cmd1 [args]" "cmd2 [args]" outfile
 ```
-`cmd1 < infile | cmd2 > outfile` と同等の挙動。コマンドは PATH 探索に加え、スラッシュを含むパス指定でも実行できる。`infile` が開けない場合は `/dev/null` を入力として処理を続行し、`outfile` は作成または上書き。
+`cmd1 < infile | cmd2 > outfile` と同等の挙動。コマンドは PATH 探索に加え、スラッシュを含むパス指定でも実行できる。`
+infile` が開けない場合は `/dev/null` を入力として処理を続行し、`outfile` は作成または上書き。
